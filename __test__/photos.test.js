@@ -30,7 +30,7 @@ describe("POST /photo/",()=>{
                 title: "Gambar",
                 caption: "Caption Gambar",
                 poster_image_url: "https://gambar.com",
-                User_id: user.id,
+                UserId: user.id,
               })
               id = photo.id
               User_id = user.id
@@ -57,7 +57,7 @@ describe("POST /photo/",()=>{
             expect(res.body).toHaveProperty("title")
             expect(res.body).toHaveProperty("caption")
             expect(res.body).toHaveProperty("poster_image_url")
-            expect(res.body).toHaveProperty("User_id")
+            expect(res.body).toHaveProperty("UserId")
             expect(res.body).toHaveProperty("createdAt")
             expect(res.body).toHaveProperty("updatedAt")
             }catch(err){
@@ -128,7 +128,7 @@ describe("GET /photo/",()=>{
                 title: "Gambar Bunga",
                 caption: "Bunga ini Bunga pertama",
                 poster_image_url: "https://cobacoba.com",
-                User_id: user.id,
+                UserId: user.id,
               })
               id = photo.id
               User_id = user.id
@@ -148,7 +148,7 @@ describe("GET /photo/",()=>{
             expect(res.body[0]).toHaveProperty("title")
             expect(res.body[0]).toHaveProperty("caption")
             expect(res.body[0]).toHaveProperty("poster_image_url")
-            expect(res.body[0]).toHaveProperty("User_id")
+            expect(res.body[0]).toHaveProperty("UserId")
             expect(res.body[0]).toHaveProperty("createdAt")
             expect(res.body[0]).toHaveProperty("updatedAt")
             expect(res.body[0]).toHaveProperty("User")
@@ -186,9 +186,8 @@ describe("GET /photo/",()=>{
 
 describe("PUT /photo/:photoId",()=>{
     let token
-    let id
-    let User_id
     let photo_id
+    let photoID = photo_id+1
 
     beforeAll(async ()=>{
         try{
@@ -202,7 +201,7 @@ describe("PUT /photo/:photoId",()=>{
                 phone_number:"085412356755"
               })
          
-            token = await generateToken({
+            token = generateToken({
                 id: user.id,
                 email: user.email,
                 username: user.username,
@@ -212,10 +211,9 @@ describe("PUT /photo/:photoId",()=>{
                 title: "Gambar Bunga",
                 caption: "Bunga ini Bunga pertama",
                 poster_image_url: "https://cobacoba.com",
-                User_id: user.id,
+                UserId: user.id,
               })
               photo_id = photo.id
-              User_id = user.id
         }catch(err){
             throw err
         }
@@ -225,24 +223,34 @@ describe("PUT /photo/:photoId",()=>{
         req(app)
         .put(`/photos/${photo_id}`)
         .set({token})
+        .send({
+          title: "Gambar1",
+          caption: "Caption Gambar1",
+          poster_image_url: "https://gambar1.com"
+        })
         .expect(200)
         .end((err,res)=>{
             if (err){done(err)}
-            expect(res.body).toHaveProperty("id")
-            expect(res.body).toHaveProperty("title")
-            expect(res.body).toHaveProperty("caption")
-            expect(res.body).toHaveProperty("poster_image_url")
-            expect(res.body).toHaveProperty("User_id")
-            expect(res.body).toHaveProperty("createdAt")
-            expect(res.body).toHaveProperty("updatedAt")
+            expect(res.body.photo).toHaveProperty("id")
+            expect(res.body.photo).toHaveProperty("title")
+            expect(res.body.photo).toHaveProperty("caption")
+            expect(res.body.photo).toHaveProperty("poster_image_url")
+            expect(res.body.photo).toHaveProperty("UserId")
+            expect(res.body.photo).toHaveProperty("createdAt")
+            expect(res.body.photo).toHaveProperty("updatedAt")
             done()
         })
     })
 
     it('should be response 404',(done)=>{
         req(app)
-        .put(`'/photo/${photo_id} `)
+        .put(`/photos/${photoID}`)
         .set({token})
+        .send({
+          title: "Gambar1",
+          caption: "Caption Gambar1",
+          poster_image_url: "https://gambar1.com"
+        })
         .expect(404)
         .end((err,res)=>{
             if (err){
@@ -297,7 +305,7 @@ describe("DELETE /photos/:photoId", ()=>{
                 title: "Gambar Bunga",
                 caption: "Bunga ini Bunga pertama",
                 poster_image_url: "https://cobacoba.com",
-                User_id: user.id,
+                UserId: user.id,
               })
               photo_id = photo.id
               User_id = user.id
@@ -315,6 +323,9 @@ describe("DELETE /photos/:photoId", ()=>{
                 if (err) {
                     done(err)
                 }
+                console.log(res.body);
+
+                done()
             })
     })
 

@@ -129,7 +129,7 @@ class userController{
                         phone_number: result[1][0].phone_number
                     }
                 }
-                res.status(201).json(response)
+                res.status(200).json(response)
             }).catch((err) => {
                 throw{
                     code: 400,
@@ -154,7 +154,7 @@ class userController{
                     message: "data not found"
                 }
             }
-            res.status(201).json({"message":"your account has sucessfully deleted"})
+            res.status(200).json({"message":"your account has successfully deleted"})
         
         } catch (error) {
             res.status(error?.code || 500).json(error)
