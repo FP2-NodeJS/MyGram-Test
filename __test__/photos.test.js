@@ -113,7 +113,7 @@ describe("POST /photo/",()=>{
             } catch(err){
               err.message= `${err.message}`
               console.log(err);
-          }
+          } 
           done()      
                   
         })

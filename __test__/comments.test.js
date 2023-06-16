@@ -210,30 +210,30 @@ describe("GET /photo/",()=>{
                 .end((err,res)=>{
                     if (err){done(err)}
                     expect(res.body).toHaveProperty('code')
-                    expect(res.body.code).toEqual(401)
-                    expect(res.body).toHaveProperty('message')
-                    expect(res.body.message).toEqual('Token not provided!')
-                    expect(typeof res.body.message).toEqual('string')
+            expect(res.body.code).toEqual(401)
+            expect(res.body).toHaveProperty('message')
+            expect(res.body.message).toEqual('Token not provided!')
+            expect(typeof res.body.message).toEqual('string')
                     done()
                 })
             })
-            afterAll(async () => {
-                try {
-                    await User.destroy({
-                    where: {},
-                    })
-                
-                    await Photo.destroy({
-                    where: {},
-                    })
+        afterAll(async () => {
+        try {
+            await User.destroy({
+            where: {},
+            })
         
-                    await Comment.destroy({
-                    where: {},
-                    })
-                } catch (err) {
-                    console.log(err)
-                    console.log(token);
-                }
+            await Photo.destroy({
+            where: {},
+            })
+
+            await Comment.destroy({
+            where: {},
+            })
+        } catch (err) {
+            console.log(err)
+            console.log(token);
+        }
     })
 })
 
@@ -325,8 +325,8 @@ describe("PUT /comments/:commentsId", ()=>{
         expect(res.body).toHaveProperty("code")
         expect(res.body).toHaveProperty("message")
         expect(res.body.code).toEqual(401)
-        expect(res.body.message).toEqual('Token not provided!')        
-        expect(res.status).toEqual(401)
+        expect(res.body.message).toEqual('Token not provided!')   
+        expect(res.status).toEqual(401)     
         done()    
         })
         
