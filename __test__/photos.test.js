@@ -5,7 +5,7 @@ const { generateToken } = require("../helpers/jwt")
 
 describe("POST /photo/",()=>{
     let token
-    let id
+    let Photo_id
     let User_id
 
     beforeAll(async ()=>{
@@ -19,7 +19,7 @@ describe("POST /photo/",()=>{
                 age:"22",
                 phone_number:"085412356755"
               })
-         
+            
             token = await generateToken({
                 id: user.id,
                 email: user.email,
@@ -32,7 +32,7 @@ describe("POST /photo/",()=>{
                 poster_image_url: "https://gambar.com",
                 UserId: user.id,
               })
-              id = photo.id
+              Photo_id = photo.id
               User_id = user.id
         }catch(err){
             throw err
@@ -75,16 +75,52 @@ describe("POST /photo/",()=>{
             title: "Gambar1",
             caption: "Caption Gambar1",
             poster_image_url: "https://gambar1.com",
-            User_id : User_id
+            UserId : User_id
         })
         .expect(401)
         .end((err,res)=>{
             if (err){done(err)}
+            console.log(res.body)
             expect(res.body).toHaveProperty("code")
             expect(res.body).toHaveProperty("message")
-            done()
+            expect(res.body.code).toEqual(401)
+            expect(res.body.message).toEqual("Token not provided!")
+            expect(res.status).toEqual(401)
+            
         })
+        done()
     })
+    it('should be response 500', (done)=>{
+      req(app)
+        .post('/photos/')
+        .set({token})
+        .send({
+            title: "",
+            caption: "",
+            poster_image_url: "https://gambar1.com",
+            UserId : User_id
+        })
+        .expect(500)
+        .end((err,res)=>{
+            try {
+              if (err){
+                done(err)
+              }
+                expect(res.body).toHaveProperty('status')
+                expect(res.body.status).toEqual(500)
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toHaveProperty('name')
+                expect(res.body.message).toHaveProperty('errors')
+               
+            } catch(err){
+              err.message= `${err.message}`
+              console.log(err);
+          }    // expect(typeof res.body.message).toEqual('string')
+          done()      
+                  
+        })
+        
+      })
 
     afterAll(async () => {
         try {
@@ -104,7 +140,7 @@ describe("POST /photo/",()=>{
 describe("GET /photo/",()=>{
     let token
     let id
-    let User_id
+    let UserId
 
     beforeAll(async ()=>{
         try{
@@ -131,7 +167,7 @@ describe("GET /photo/",()=>{
                 UserId: user.id,
               })
               id = photo.id
-              User_id = user.id
+              UserId = user.id
         }catch(err){
             throw err
         }
@@ -156,15 +192,18 @@ describe("GET /photo/",()=>{
         })
         done()
     })
-    //test get all photo error karena tidak menyertakan token
+
     it('should be response 401',(done)=>{
         req(app)
         .get('/photos/')
         .expect(401)
         .end((err,res)=>{
             if (err){done(err)}
-            expect(res.body).toHaveProperty("code")
-            expect(res.body).toHaveProperty("message")
+            expect(res.body).toHaveProperty('code')
+            expect(res.body.code).toEqual(401)
+            expect(res.body).toHaveProperty('message')
+            expect(res.body.message).toEqual('Token not provided!')
+            expect(typeof res.body.message).toEqual('string')
             done()
         })
     })
@@ -173,7 +212,7 @@ describe("GET /photo/",()=>{
         try {
           await User.destroy({
             where: {},
-          })
+        })
      
           await Photo.destroy({
             where: {},
@@ -187,7 +226,7 @@ describe("GET /photo/",()=>{
 describe("PUT /photo/:photoId",()=>{
     let token
     let photo_id
-    let photoID = photo_id+1
+    let photoID
 
     beforeAll(async ()=>{
         try{
@@ -200,7 +239,7 @@ describe("PUT /photo/:photoId",()=>{
                 age:"22",
                 phone_number:"085412356755"
               })
-         
+              
             token = generateToken({
                 id: user.id,
                 email: user.email,
@@ -214,6 +253,7 @@ describe("PUT /photo/:photoId",()=>{
                 UserId: user.id,
               })
               photo_id = photo.id
+              photoID = photo_id+1
         }catch(err){
             throw err
         }
@@ -255,13 +295,75 @@ describe("PUT /photo/:photoId",()=>{
         .end((err,res)=>{
             if (err){
                 done(err)
+            }else{              
+              expect(res.body).toHaveProperty('error')
+                expect(res.body.error).toEqual('Photo Not Found')
+                expect(res.body).toHaveProperty('Message')
+                expect(typeof res.body.error).toEqual('string')
+                expect(typeof res.body.Message).toEqual('string')
             }
-            expect(res.body).toHaveProperty("code")
-            expect(res.body).toHaveProperty("message")
-            
+            done()  
         })
-        done()
+        
     })
+
+    it('should be response 401',(done)=>{
+      req(app)
+      .put(`/photos/${photo_id}`)
+      .send({
+        title: "Gambar1",
+        caption: "Caption Gambar1",
+        poster_image_url: "https://gambar1.com"
+      })
+      .expect(401)
+      .end((err,res)=>{
+        try{
+          if (err){
+              done(err)
+          }
+            expect(res.body).toHaveProperty('code')
+            expect(res.body.error).toEqual('Token not provided!')
+            expect(res.body).toHaveProperty('message')
+            expect(typeof res.body.error).toEqual('string')
+            expect(typeof res.body.Message).toEqual('string')
+          
+        }catch(err){
+              err.message= `${err.message}`
+              console.log(err);
+          }  done()  
+      })
+      
+  })
+
+  it('should be response 500',(done)=>{
+    req(app)
+    .put(`/photos/${photo_id}`)
+    .set({token})
+    .send({
+      title: "",
+      caption: "Caption Gambar1",
+      poster_image_url: "https://gambar1.com"
+    })
+    .expect(500)
+    .end((err,res)=>{
+      try{  
+      if (err){
+            done(err)
+      }              
+          expect(res.body).toHaveProperty('errors')
+          expect(res.body.status).toEqual(500)
+          expect(res.body).toHaveProperty('message')
+          expect(res.body.message).toHaveProperty('name')
+          expect(res.body.message).toHaveProperty('errors')
+        }
+        catch(err){
+          err.message= `${err.message}`
+          console.log(err);
+      }
+        done()  
+    })
+    
+})
 
     afterAll(async () => {
         try {
@@ -280,8 +382,11 @@ describe("PUT /photo/:photoId",()=>{
 
 describe("DELETE /photos/:photoId", ()=>{
     let token
-    let User_id
+    let UserId
+    let UserId1
     let photo_id
+    let photo_id1
+    let photoID
 
     beforeAll(async ()=>{
         try{
@@ -293,6 +398,16 @@ describe("DELETE /photos/:photoId", ()=>{
                 profile_image_url: "https://gambar.com",
                 age:"22",
                 phone_number:"085412356755"
+              })
+
+              const user1 = await User.create({
+                full_name: "Admin admin1",
+                email: "admin1@gmail.com",
+                username: "admin1",
+                password: "admin1",
+                profile_image_url: "https://gambar1.com",
+                age:"22",
+                phone_number:"085412386745"
               })
               
             token = await generateToken({
@@ -307,8 +422,19 @@ describe("DELETE /photos/:photoId", ()=>{
                 poster_image_url: "https://cobacoba.com",
                 UserId: user.id,
               })
+
+              const photo1 = await Photo.create({
+                title: "Gambar Bunga1",
+                caption: "Bunga ini Bunga kedua",
+                poster_image_url: "https://cobacoba1.com",
+                UserId: user1.id,
+              })
+
               photo_id = photo.id
-              User_id = user.id
+              UserId = user.id
+              UserId1 = user1.id
+              photoID = photo1.id
+              photo_id1= photo_id+1
         }catch(err){
             throw err
         }
@@ -324,14 +450,87 @@ describe("DELETE /photos/:photoId", ()=>{
                     done(err)
                 }
                 console.log(res.body);
-
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toEqual('Your photo has been successfully deleted')
+                expect(res.body).not.toHaveProperty('photo')
+                expect(res.body).not.toHaveProperty('id')
+                expect(res.body).not.toHaveProperty("title")
+                expect(res.body).not.toHaveProperty("caption")
+                expect(res.body).not.toHaveProperty("poster_image_url")
+                expect(res.body).not.toHaveProperty("UserId")
+                expect(res.body).not.toHaveProperty('updatedAt')
+                expect(res.body).not.toHaveProperty('createdAt')
                 done()
             })
     })
 
+    it("should be response 401", (done)=>{
+      req(app)
+          .delete(`/photos/${photo_id}`)
+          .expect(401)
+          .end((err, res) => {
+              if (err) {
+                  done(err)
+              }
+              console.log(res.body);
+              expect(res.body).toHaveProperty('code')
+              expect(res.body.code).toEqual(401)
+              expect(res.body).toHaveProperty('message')
+              expect(res.body.message).toEqual('Token not provided!')
+              expect(typeof res.body.message).toEqual('string')
+              done()
+          })
+  })
+
+  it('Should be response 404', (done) => {
+    req(app)
+        .delete(`/photos/${UserId1}`)
+        .set({ token })
+        .expect(404)
+        .end((err, res) => {
+          try{
+            if (err) {
+                done(err)
+            }
+
+            // console.log(res.body);
+
+            expect(res.body).toHaveProperty('error')
+            expect(res.body.error).toEqual('Photo Media Not Found')
+            expect(res.body).toHaveProperty('Message')
+            expect(typeof res.body.error).toEqual('string')
+            expect(typeof res.body.Message).toEqual('string')
+          }catch(err){
+              err.message= `${err.message}`
+              console.log(err);
+          }
+        done()
+        })
+})
+
+it('should response 403', (done)=>{
+  req(app)
+        .delete(`/photos/${photoID}`)
+        .set({ token })
+        .expect(403)
+        .end((err, res) => {
+            if (err) {
+                done(err)
+            }
+
+            // console.log(res.body);
+
+            expect(res.body).toHaveProperty('error')
+            expect(res.body.error).toEqual('Authorization Error')
+            expect(res.body).toHaveProperty('Message')
+            expect(typeof res.body.error).toEqual('string')
+            expect(typeof res.body.Message).toEqual('string')
+            done()
+        })
+})
     afterAll(async () => {
         try {
-          await User.destroy({
+          await User.destroy({                  
             where: {},
           })
      
