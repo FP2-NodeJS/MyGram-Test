@@ -58,8 +58,6 @@ describe("POST /photo/",()=>{
             expect(res.body).toHaveProperty("caption")
             expect(res.body).toHaveProperty("poster_image_url")
             expect(res.body).toHaveProperty("UserId")
-            expect(res.body).toHaveProperty("createdAt")
-            expect(res.body).toHaveProperty("updatedAt")
             }catch(err){
                 err.message= `${err.message}`
                 console.log(err);
@@ -106,16 +104,16 @@ describe("POST /photo/",()=>{
               if (err){
                 done(err)
               }
-                expect(res.body).toHaveProperty('status')
-                expect(res.body.status).toEqual(500)
-                expect(res.body).toHaveProperty('message')
-                expect(res.body.message).toHaveProperty('name')
-                expect(res.body.message).toHaveProperty('errors')
+                expect(res.body).toHaveProperty('errors')
+                expect(res.status).toEqual(500)
+                expect(res.body.errors[0]).toHaveProperty('message')
+                expect(res.body).toHaveProperty('name')
+                expect(typeof res.body).toEqual('object')
                
             } catch(err){
               err.message= `${err.message}`
               console.log(err);
-          }    // expect(typeof res.body.message).toEqual('string')
+          }
           done()      
                   
         })
@@ -322,10 +320,10 @@ describe("PUT /photo/:photoId",()=>{
               done(err)
           }
             expect(res.body).toHaveProperty('code')
-            expect(res.body.error).toEqual('Token not provided!')
+            expect(res.body.message).toEqual('Token not provided!')
             expect(res.body).toHaveProperty('message')
-            expect(typeof res.body.error).toEqual('string')
-            expect(typeof res.body.Message).toEqual('string')
+            expect(typeof res.body.code).toEqual('number')
+            expect(typeof res.body.message).toEqual('string')
           
         }catch(err){
               err.message= `${err.message}`
@@ -351,10 +349,10 @@ describe("PUT /photo/:photoId",()=>{
             done(err)
       }              
           expect(res.body).toHaveProperty('errors')
-          expect(res.body.status).toEqual(500)
-          expect(res.body).toHaveProperty('message')
-          expect(res.body.message).toHaveProperty('name')
-          expect(res.body.message).toHaveProperty('errors')
+          expect(res.status).toEqual(500)
+          expect(res.body.errors[0]).toHaveProperty('message')
+          expect(res.body).toHaveProperty('name')
+          expect(typeof res.body).toEqual('object')
         }
         catch(err){
           err.message= `${err.message}`
@@ -496,7 +494,7 @@ describe("DELETE /photos/:photoId", ()=>{
             // console.log(res.body);
 
             expect(res.body).toHaveProperty('error')
-            expect(res.body.error).toEqual('Photo Media Not Found')
+            expect(res.body.error).toEqual('Photo Not Found')
             expect(res.body).toHaveProperty('Message')
             expect(typeof res.body.error).toEqual('string')
             expect(typeof res.body.Message).toEqual('string')

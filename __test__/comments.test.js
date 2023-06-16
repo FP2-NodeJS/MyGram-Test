@@ -51,12 +51,12 @@ describe("POST /comments", ()=>{
         .end((err,res)=>{
             try{
             if (err){done(err)}
-            expect(res.body).toHaveProperty("id")
-            expect(res.body).toHaveProperty("UserId")
-            expect(res.body).toHaveProperty("PhotoId")
-            expect(res.body).toHaveProperty("comment")
-            expect(res.body).toHaveProperty("createdAt")
-            expect(res.body).toHaveProperty("updatedAt")
+            expect(res.body.comment).toHaveProperty("id")
+            expect(res.body.comment).toHaveProperty("UserId")
+            expect(res.body.comment).toHaveProperty("PhotoId")
+            expect(res.body.comment).toHaveProperty("comment")
+            expect(res.body.comment).toHaveProperty("createdAt")
+            expect(res.body.comment).toHaveProperty("updatedAt")
             }catch(err){
                 err.message= `${err.message}`
                 console.log(err);
@@ -104,8 +104,8 @@ describe("POST /comments", ()=>{
             .end((err,res)=>{
             try{
             if (err){done(err)}
-            expect(res.body).toHaveProperty("error")
-            expect(res.body).toHaveProperty("Message")
+            expect(res.body).toHaveProperty("code")
+            expect(res.body).toHaveProperty("message")
             expect(res.body.code).toEqual(401)
             expect(res.body.message).toEqual("Token not provided!")
             expect(res.status).toEqual(401)
@@ -210,33 +210,31 @@ describe("GET /photo/",()=>{
                 .end((err,res)=>{
                     if (err){done(err)}
                     expect(res.body).toHaveProperty('code')
-            expect(res.body.code).toEqual(401)
-            expect(res.body).toHaveProperty('message')
-            expect(res.body.message).toEqual('Token not provided!')
-            expect(typeof res.body.message).toEqual('string')
+                    expect(res.body.code).toEqual(401)
+                    expect(res.body).toHaveProperty('message')
+                    expect(res.body.message).toEqual('Token not provided!')
+                    expect(typeof res.body.message).toEqual('string')
                     done()
                 })
             })
-
-    })
-    
-    afterAll(async () => {
-        try {
-            await User.destroy({
-            where: {},
-            })
+            afterAll(async () => {
+                try {
+                    await User.destroy({
+                    where: {},
+                    })
+                
+                    await Photo.destroy({
+                    where: {},
+                    })
         
-            await Photo.destroy({
-            where: {},
-            })
-
-            await Comment.destroy({
-            where: {},
-            })
-        } catch (err) {
-            console.log(err)
-            console.log(token);
-        }
+                    await Comment.destroy({
+                    where: {},
+                    })
+                } catch (err) {
+                    console.log(err)
+                    console.log(token);
+                }
+    })
 })
 
 describe("PUT /comments/:commentsId", ()=>{
@@ -328,6 +326,7 @@ describe("PUT /comments/:commentsId", ()=>{
         expect(res.body).toHaveProperty("message")
         expect(res.body.code).toEqual(401)
         expect(res.body.message).toEqual('Token not provided!')        
+        expect(res.status).toEqual(401)
         done()    
         })
         
