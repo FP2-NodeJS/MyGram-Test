@@ -130,9 +130,9 @@ describe("POST /comments", ()=>{
               console.log(err)
             }
           })
-    })
+})
 
-    describe("GET /photo/",()=>{
+describe("GET /photo/",()=>{
             let token
             let PhotoId
             let UserId
@@ -457,8 +457,6 @@ it("should response 200", (done)=>{
             done(err)
         }
 
-        // console.log(res.body);
-
         expect(res.body).toHaveProperty('message')
     done()
     })
@@ -511,14 +509,11 @@ it("should response 403", (done)=>{
     .expect(403)
     .end((err, res)=>{
         if(err){done(err)}
-        expect(res.body).toHaveProperty('code')
-        expect(res.body).toHaveProperty('message')
+        expect(res.body).toHaveProperty('error')
+        expect(res.body).toHaveProperty('Message')
         expect(res.body.error).toEqual('Authorization Error')
-        
-    
-        
+        done()
     })
-    done()
 })
 
     afterAll(async () => {
