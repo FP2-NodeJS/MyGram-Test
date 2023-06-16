@@ -137,9 +137,9 @@ describe("POST /comments", ()=>{
               console.log(err)
             }
           })
-    })
+})
 
-    describe("GET /photo/",()=>{
+describe("GET /photo/",()=>{
             let token
             let PhotoId
             let UserId
