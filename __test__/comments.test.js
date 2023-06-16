@@ -55,6 +55,8 @@ describe("POST /comments", ()=>{
             expect(res.body).toHaveProperty("UserId")
             expect(res.body).toHaveProperty("PhotoId")
             expect(res.body).toHaveProperty("comment")
+            expect(res.body).toHaveProperty("createdAt")
+            expect(res.body).toHaveProperty("updatedAt")
             }catch(err){
                 err.message= `${err.message}`
                 console.log(err);
@@ -84,7 +86,7 @@ describe("POST /comments", ()=>{
         }catch(err){
             err.message= `${err.message}`
             console.log(err);
-        }
+    }
         done()
     })
     
@@ -102,8 +104,11 @@ describe("POST /comments", ()=>{
             .end((err,res)=>{
             try{
             if (err){done(err)}
-            expect(res.body).toHaveProperty("code")
-            expect(res.body).toHaveProperty("message")
+            expect(res.body).toHaveProperty("error")
+            expect(res.body).toHaveProperty("Message")
+            expect(res.body.code).toEqual(401)
+            expect(res.body.message).toEqual("Token not provided!")
+            expect(res.status).toEqual(401)
             
             }catch(err){
                 err.message= `${err.message}`
@@ -177,7 +182,7 @@ describe("POST /comments", ()=>{
                     throw err
                 }
             })
-            //test get all photo success
+        
             it('should be response 200',(done)=>{
                 req(app)
                 .get('/comments/')
@@ -193,8 +198,9 @@ describe("POST /comments", ()=>{
                     expect(res.body[0]).toHaveProperty("comment")
                     expect(res.body[0]).toHaveProperty("createdAt")
                     expect(res.body[0]).toHaveProperty("updatedAt")
+                    done()
                 })
-                done()
+                
             })
         
             it('should be response 401',(done)=>{
@@ -229,6 +235,7 @@ describe("POST /comments", ()=>{
             })
         } catch (err) {
             console.log(err)
+            console.log(token);
         }
 })
 
@@ -243,8 +250,8 @@ describe("PUT /comments/:commentsId", ()=>{
         try{
             const user = await User.create({
                 full_name: "Admin admin",
-                email: "admin@gmail.com",
-                username: "admin",
+                email: "admin1@gmail.com",
+                username: "admin1",
                 password: "admin",
                 profile_image_url: "https://gambar.com",
                 age:"22",
@@ -252,7 +259,7 @@ describe("PUT /comments/:commentsId", ()=>{
               })
          
             token = await generateToken({
-                id: user.id,
+            id: user.id,
                 email: user.email,
                 username: user.username,
               })
@@ -274,7 +281,7 @@ describe("PUT /comments/:commentsId", ()=>{
             CommentId=comment.id
             CommentId1=CommentId+1
         }catch(err){
-            throw err
+            console.log(err);
         }
     })
     
@@ -313,21 +320,17 @@ describe("PUT /comments/:commentsId", ()=>{
         })
         .expect(401)
         .end((err,res)=>{
-            try {
+            
                 if (err){done(err)}
                 console.log(res.body);
 
-        expect(res.body).toHaveProperty("errors")
         expect(res.body).toHaveProperty("code")
-        expect(res.body.comment).toHaveProperty("message")
-        expect(res.body.status).toEqual(500)
-        expect(res.body.message).toHaveProperty('name')        
-            } catch (err) {
-                err.message= `${err.message}`
-                console.log(err);
-            }
+        expect(res.body).toHaveProperty("message")
+        expect(res.body.code).toEqual(401)
+        expect(res.body.message).toEqual('Token not provided!')        
+        done()    
         })
-        done()
+        
     })
 
     it('should be response 404',(done)=>{
@@ -366,15 +369,13 @@ describe("PUT /comments/:commentsId", ()=>{
         })
         .expect(500)
         .end((err,res)=>{
-            try{
+           
                 if (err){done(err)}
-            expect(res.body).toHaveProperty("code")
-            expect(res.body).toHaveProperty("message")
-            
-        }catch(err){
-            err.message= `${err.message}`
-                console.log(err);
-        }
+                expect(res.body).toHaveProperty('status')
+                expect(res.body.status).toEqual(500)
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toHaveProperty('name')
+                expect(res.body.message).toHaveProperty('errors')
         done()    
         })
         
@@ -474,7 +475,7 @@ it("should response 200", (done)=>{
 
         // console.log(res.body);
         expect(res.body).toHaveProperty('message')
-        expect(res.body.message).toEqual('Your photo has been successfully deleted')
+        expect(res.body.message).toEqual('Your Comment has been successfully deleted')
         expect(res.body).not.toHaveProperty("id")
         expect(res.body).not.toHaveProperty("UserId")
         expect(res.body).not.toHaveProperty("PhotoId")
@@ -489,7 +490,6 @@ it("should response 401", (done)=>{
     .delete(`/comments/${CommentId}`)
     .expect(401)
     .end((err, res)=>{
-    try{
         if(err){
         done(err)
             }
@@ -498,10 +498,7 @@ it("should response 401", (done)=>{
             expect(res.body.code).toEqual(401)
             expect(res.body.message).toEqual("Token not provided!")
             expect(res.status).toEqual(401)
-    }catch(err){
-    err.message= `${err.message}`
-        console.log(err);
-        }
+    
         done()
     })
     
@@ -509,11 +506,10 @@ it("should response 401", (done)=>{
 
 it("should response 404", (done)=>{
     req(app)
-    .delete(`/comments/${CommentId1}`)
+    .delete(`/comments/${CommentId2}`)
     .set({token})
     .expect(404)
     .end((err, res)=>{
-    try{
         if(err){
         done(err)
             }
@@ -522,11 +518,7 @@ it("should response 404", (done)=>{
             expect(res.body).toHaveProperty('Message')
             expect(typeof res.body.error).toEqual('string')
             expect(typeof res.body.Message).toEqual('string')
-            expect(res.body).toHaveProperty('message')
-    }catch(err){
-    err.message= `${err.message}`
-        console.log(err);
-        }
+    
         done()
     })
     
@@ -539,13 +531,14 @@ it("should response 403", (done)=>{
     .expect(403)
     .end((err, res)=>{
         if(err){done(err)}
-        expect(res.body).toHaveProperty('code')
-        expect(res.body).toHaveProperty('message')
+        expect(res.body).toHaveProperty('error')
+        expect(res.body).toHaveProperty('Message')
         expect(res.body.error).toEqual('Authorization Error')
         expect(typeof res.body.error).toEqual('string')
         expect(typeof res.body.Message).toEqual('string')
+        done()
     })
-    done()
+    
 })
 
     afterAll(async () => {
